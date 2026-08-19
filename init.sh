@@ -2,7 +2,7 @@
 # Session bootstrap — run at the start of every working session, BEFORE any new
 # work. The goal: dependencies installed, tests green, app responding. A failure
 # here means the previous session left the project broken; fix that first
-# (see the session protocol in .claude/CLAUDE.md).
+# (see the session protocol in AGENTS.md).
 #
 # This is a template: the auto-detection below covers common stacks so it works
 # out of the box, but replace it with your project's real bring-up as soon as

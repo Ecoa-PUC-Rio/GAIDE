@@ -23,7 +23,7 @@ Read `specs/<feature>/spec.md`, especially:
 - The "Security considerations" section (abuse cases → tests proving the abuse fails)
 
 ### 2. Load the test stack
-Check `.claude/CLAUDE.md` or `package.json` / `pyproject.toml` to identify the test framework in use. Do not introduce a new framework.
+Check `AGENTS.md` or `package.json` / `pyproject.toml` to identify the test framework in use. Do not introduce a new framework.
 
 ### 3. Map criterion → test
 

@@ -1,13 +1,13 @@
 ---
 name: code-reviewer
-description: Reviews the current diff (uncommitted or open PR) for bugs, security risks, constitution violations, and divergences from specs. Delegates the review to a clean-context subagent. Use before relevant commits or when the user asks "review what changed".
+description: Reviews the current diff (uncommitted or open PR) for bugs, security risks, constitution violations, and divergences from specs. Delegates the review to a clean-context reviewer. Use before relevant commits or when the user asks "review what changed".
 ---
 
 # Skill: code-reviewer
 
-## Why a subagent
+## Why a clean context
 
-An agent that wrote the code is biased when reviewing it: its context contains the rationalizations that produced the bugs. The review therefore runs in a **clean context** — the `code-reviewer` subagent (defined in `.claude/agents/code-reviewer.md`) sees only the diff and the governing documents, exactly like a future maintainer would. Your job in this skill is orchestration, not judgment.
+An agent that wrote the code is biased when reviewing it: its context contains the rationalizations that produced the bugs. The review therefore runs in a **clean context** — a reviewer following the rubric in `agents/reviewers/code-reviewer.md` that sees only the diff and the governing documents, exactly like a future maintainer would. In Claude Code this is the `code-reviewer` subagent; in tools without subagents, open a **fresh conversation/agent** given only the rubric and the brief below. Your job in this skill is orchestration, not judgment.
 
 ## When to activate
 
@@ -35,7 +35,7 @@ For an open PR, use `gh pr diff <number>`.
 
 ### 3. Spawn the reviewer with a minimal brief
 
-Launch the `code-reviewer` subagent. Pass **only**:
+Launch the clean-context reviewer (the `code-reviewer` subagent in Claude Code; elsewhere, a fresh conversation pointed at `agents/reviewers/code-reviewer.md`). Pass **only**:
 
 - How to collect the diff (the exact command from step 1)
 - The document paths from step 2

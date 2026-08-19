@@ -23,4 +23,4 @@ Before creating any file here, **there must be an approved spec** at `../specs/<
 
 ## How to start
 
-Use the `spec-writer` skill (`.claude/skills/spec-writer.md`) or follow the SDD flow manually via `../specs/README.md`.
+Use the `spec-writer` skill (`agents/skills/spec-writer.md`) or follow the SDD flow manually via `../specs/README.md`.

@@ -1,13 +1,13 @@
 ---
 name: security-reviewer
-description: Security review of the current diff (or PR) by a clean-context subagent — logic-level flaws, authz reasoning, abuse-case coverage, and scanner-suppression audit. Use for changes touching auth, sensitive data, external input, or new dependencies, or when the user asks for a security review.
+description: Security review of the current diff (or PR) by a clean-context reviewer — logic-level flaws, authz reasoning, abuse-case coverage, and scanner-suppression audit. Use for changes touching auth, sensitive data, external input, or new dependencies, or when the user asks for a security review.
 ---
 
 # Skill: security-reviewer
 
 ## Why this exists alongside the scanners
 
-The hooks and CI already run semgrep, gitleaks, and osv-scanner — they catch *pattern-level* flaws. This review catches what scanners structurally cannot: authorization logic (IDOR, tenant isolation), abuse cases from the spec, and diffs that quietly disarm the scanners themselves. Like `code-reviewer`, it runs in a **clean context** — the `security-reviewer` subagent (defined in `.claude/agents/security-reviewer.md`) sees only the diff and the governing documents. Your job in this skill is orchestration, not judgment.
+The hooks and CI already run semgrep, gitleaks, and osv-scanner — they catch *pattern-level* flaws. This review catches what scanners structurally cannot: authorization logic (IDOR, tenant isolation), abuse cases from the spec, and diffs that quietly disarm the scanners themselves. Like `code-reviewer`, it runs in a **clean context** — a reviewer following the rubric in `agents/reviewers/security-reviewer.md` that sees only the diff and the governing documents. In Claude Code this is the `security-reviewer` subagent; in tools without subagents, open a **fresh conversation/agent** given only the rubric and the brief below. Your job in this skill is orchestration, not judgment.
 
 ## When to activate
 
@@ -36,7 +36,7 @@ For an open PR, use `gh pr diff <number>`.
 
 ### 3. Spawn the reviewer with a minimal brief
 
-Launch the `security-reviewer` subagent. Pass **only**:
+Launch the clean-context reviewer (the `security-reviewer` subagent in Claude Code; elsewhere, a fresh conversation pointed at `agents/reviewers/security-reviewer.md`). Pass **only**:
 
 - How to collect the diff (the exact command from step 1)
 - The document paths from step 2

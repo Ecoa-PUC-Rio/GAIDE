@@ -1,7 +1,8 @@
-# Outer harness: the hooks in .claude/hooks/ only guard changes made inside
-# the IADE session; this workflow guards everything that reaches the repo,
-# whoever (or whatever) pushed it. Same three scanners as the local layer.
-# Stack-agnostic by design — add your test/lint jobs alongside these.
+# Guaranteed harness: inline hooks only exist in tools that support them
+# (see README "Portable by design"); this workflow guards everything that
+# reaches the repo, whoever (or whatever) pushed it. Same three scanners as
+# the local layer (scripts/), plus a drift check on the generated per-tool
+# bindings. Stack-agnostic by design — add your test/lint jobs alongside these.
 name: Security
 
 on:
@@ -44,6 +45,13 @@ jobs:
           curl -sSL -o osv-scanner https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64
           chmod +x osv-scanner
           ./osv-scanner scan -r . || [ $? -eq 128 ]
+
+  adapters:
+    name: Adapter drift (sync-adapters)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - run: scripts/sync-adapters.sh --check
 
   # Optional: IaC scanning for projects with Terraform / Dockerfiles / k8s
   # manifests. Uncomment to enable (same underscore-style convention as

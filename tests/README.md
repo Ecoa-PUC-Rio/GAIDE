@@ -22,4 +22,4 @@ Tests reflect the acceptance criteria of the corresponding spec. See constitutio
 
 ## How to generate
 
-Use the `test-generator` skill (`.claude/skills/test-generator.md`) to derive tests from an approved spec at `../specs/<feature>/spec.md`.
+Use the `test-generator` skill (`agents/skills/test-generator.md`) to derive tests from an approved spec at `../specs/<feature>/spec.md`.

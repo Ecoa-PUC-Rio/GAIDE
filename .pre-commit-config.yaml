@@ -1,6 +1,7 @@
-# Shares the harness with humans: the hooks in .claude/hooks/ only fire for
-# the agent's tool calls; pre-commit runs the same scanners for anyone who
-# commits. Install with: pipx install pre-commit && pre-commit install
+# Shares the harness with humans and with agents whose tool has no inline
+# hooks: pre-commit runs the same scanners as scripts/ for anyone who commits
+# (the commit-time guaranteed floor — see README "Portable by design").
+# Install with: pipx install pre-commit && pre-commit install
 # Update pinned revs periodically with: pre-commit autoupdate
 repos:
   - repo: https://github.com/gitleaks/gitleaks
