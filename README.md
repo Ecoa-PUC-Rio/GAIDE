@@ -154,6 +154,23 @@ Vibe coding works best with guardrails. This template enforces a few non-negotia
 9. **Tests and task lists are load-bearing** — never edited to make work *appear* done
 10. **Security findings are load-bearing** — scanners are fixed against, never silenced
 
+These principles are reinforced by the Karpathy-inspired operating standards that keep agent work deliberate and minimal:
+
+- **Think before coding** — surface assumptions, ask clarifying questions, and avoid silent interpretation.
+- **Simplicity first** — choose the minimum code that solves the problem; avoid speculative abstractions.
+- **Surgical changes** — change only what is required and leave unrelated code untouched.
+- **Goal-driven execution** — define verifiable success criteria and test the result explicitly.
+
+A practical session loop for the agent is:
+
+1. Read the brief and repo rules.
+2. State assumptions and ambiguities.
+3. Define the acceptance criteria before coding.
+4. Check for the relevant spec and tests.
+5. Make the smallest possible change.
+6. Validate with the smallest relevant check.
+7. Review the diff for scope drift and report evidence.
+
 You can relax any of these as your team matures — but only via an explicit ADR.
 
 ## Suggested first steps after cloning

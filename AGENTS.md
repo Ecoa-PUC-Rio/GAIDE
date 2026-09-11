@@ -91,6 +91,58 @@ MCP servers are declared in `.mcp.json` (canonical reference). See `docs/mcp-set
 - **Tests:** changing code that affects behavior without changing/adding tests is forbidden.
 - **Logging:** follow the convention defined in a `docs/adr/NNNN-logging-strategy.md` ADR (create one if missing).
 
+### Karpathy-inspired operating principles
+
+These principles complement the constitution and keep agent behavior aligned with lean, deliberate coding:
+
+- **Think before coding:** state assumptions explicitly, surface uncertainty early, and ask clarifying questions instead of silently guessing.
+- **Simplicity first:** prefer the smallest code that solves the actual problem; avoid speculative abstractions, unnecessary config, or "clever" designs.
+- **Surgical changes:** touch only what is required for the task; do not refactor or "clean up" unrelated code, and preserve the existing style unless the task requires a justified change.
+- **Goal-driven execution:** define success criteria upfront, verify with tests or checks, and loop until the result is demonstrably correct rather than merely plausible.
+
+In practice, this means: clarify ambiguities before implementation, keep diffs minimal, and verify behavior against the spec before claiming the task is done.
+
+### Session operating loop
+
+Use this sequence in every non-trivial session. It is intentionally explicit so the agent does not drift into vague "make it work" mode:
+
+1. **Read the brief and the repo contract**
+   - Read `AGENTS.md`, the relevant spec, and the constitution if the task changes behavior.
+   - Identify the exact user goal and the scope boundary.
+
+2. **State assumptions and surface uncertainty**
+   - Write down what is known, what is ambiguous, and what decisions require confirmation.
+   - If the task is underspecified, ask before implementing.
+
+3. **Define success criteria before code**
+   - Translate the request into verifiable outcomes: what should happen, what should not happen, and how it will be checked.
+   - Prefer testable criteria over general statements like "works well".
+
+4. **Check for the required spec/test path**
+   - If behavior changes, confirm the applicable spec exists.
+   - If no spec exists, propose writing one before implementation.
+   - For behavioral fixes, add or update the failing test first.
+
+5. **Make the smallest possible change**
+   - Do not refactor adjacent code.
+   - Do not add abstractions or options that were not requested.
+   - Keep the diff limited to the feature or bug being solved.
+
+6. **Verify against the actual task**
+   - Run the smallest relevant validation: targeted tests, syntax checks, security checks, or manual verification.
+   - Treat verification as part of the task, not an optional afterthought.
+
+7. **Review for drift**
+   - Check whether the change stayed inside scope.
+   - Remove dead code only if it was created by this task.
+   - Confirm there are no accidental edits outside the requested feature.
+
+8. **Report outcome with evidence**
+   - State what changed, what was validated, and what remains uncertain.
+   - Do not claim completion without evidence from the actual checks run.
+
+This loop is the default for agent work in this repository, and it should be used whenever the task is more than a one-line typo or a trivial edit.
+
 ## Available skills
 
 Source of truth in `agents/skills/` (Claude Code exposes them as `/name` via `.claude/skills/`; Antigravity as `/name` workflows via `.agents/workflows/` — both generated):
