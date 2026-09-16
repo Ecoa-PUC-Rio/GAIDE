@@ -200,256 +200,256 @@
 
 ## Task 10 — Module split refactor
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/app.js`, `src/todo-app/calendar.js` (new), `src/todo-app/render.js` (new), `src/todo-app/data.js`
+**Files:** `src/todo-app/app.js`, `src/todo-app/render.js` (new), `src/todo-app/data.js`, `tests/todo-app/data-layer.test.js` (import paths only), `tests/todo-app/README.md`
 
-**Description:** Mechanical refactor: carve the base app's existing rendering/interaction code out of `app.js` into `render.js` (DOM building) and `calendar.js` (grid construction, imports `data.js`'s date-math), leaving `app.js` as the entry point that wires everything together via native ES module `import`/`export`. No behavior change.
+**Description:** Mechanical refactor: carved `app.js`'s existing rendering/interaction code (task-row builders, swipe-to-delete, `persistTasks`, `renderTaskList`) into `render.js` unchanged; `app.js` now imports `createTask`/`loadTasks` from `data.js` and `renderTaskList`/`persistTasks` from `render.js` instead of defining them itself. No behavior change. `calendar.js` is deferred to Task 11 — there's no calendar code yet to carve out, and creating an empty file now would be premature; `plan.md`'s file list is realized incrementally as content exists for it. `data-layer.test.js`'s 3 import lines were repointed from `app.js` to `data.js` — a necessary consequence of the functions actually moving, not a behavior/assertion change.
 
 **Done when:**
-- [ ] All 34 existing base-app tests still pass unmodified after the split
-- [ ] `index.html` still loads the app correctly via `<script type="module" src="app.js">` with no other markup changes
+- [x] All 34 existing base-app tests still pass unmodified after the split
+- [x] `index.html` still loads the app correctly via `<script type="module" src="app.js">` with no other markup changes
 
 **Estimate:** ~40 min
 
 **Depends on:** Task 3, Task 4, Task 5, Task 6, Task 7, Task 8, Task 9
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/data-layer.test.js tests/todo-app/interactions.test.js tests/todo-app/persistence.test.js tests/todo-app/rendering.test.js` — 32/32 pass; plus `security.test.js`'s original C9/C26 pass (34/34 base-app tests total). Full suite: 70/101 still pass, 31 fail — identical pass/fail counts to before the refactor (no regression). `git diff --stat src/todo-app/index.html` — empty, confirming no markup change was needed.
 
 ---
 
 ## Task 11 — Calendar month-view rendering
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/calendar.js`, `src/todo-app/render.js`, `src/todo-app/index.html`, `src/todo-app/style.css`
+**Files:** `src/todo-app/calendar.js` (new), `src/todo-app/render.js`, `src/todo-app/index.html`
 
-**Description:** Render the month view (default, current month): one square per day, colored via `band()`/`dayRatio()` from Task 4, today's square visually distinguishable.
+**Description:** `calendar.js`'s `buildGrid('month', ...)` combines `data.js`'s `monthDates`/`dayRatio`/`band` into render-ready cells; `render.js`'s `renderCalendar` paints them into `[data-testid="calendar-grid"]` as `[data-testid="calendar-day"]` elements with `data-date`/`data-band`/`data-today`. Implemented together with Task 12 (view switching/nav) and Task 18 (day-detail) in one pass, since the day-cell click handler is shared by all three — see each task's own evidence for what specifically covers it. `style.css` band-color scale (white → blue, 6 CSS variables matching the spec's table), today-highlight, and styling for every other new element (Scheduled list, calendar grid/controls, reminder markers, day-detail panel, reminder popup, new-task recurrence fields) added afterward, once Tasks 11–20's structure existed to style. Whether it actually *looks* right on a real screen is still Task 22's job — jsdom doesn't render CSS, so this is unverified beyond "the rules exist and don't break the DOM-structure tests."
 
 **Done when:**
-- [ ] Opening the calendar with no prior view choice shows the month containing today's date
-- [ ] Today's square is visually distinguishable from other days
-- [ ] Each day square's color matches its computed band
+- [x] Opening the calendar with no prior view choice shows the month containing today's date
+- [x] Today's square is visually distinguishable from other days (`data-today="true"` + `.today` class)
+- [x] Each day square's color matches its computed band (`data-band` attribute)
 
 **Estimate:** ~40 min
 
 **Depends on:** Task 10
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/calendar.test.js` — 10/10 suites, 14/14 tests pass, including C29 (default month view, today marked) and the `data-band` presence check (C32).
 
 ---
 
 ## Task 12 — Week/year views and navigation
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/calendar.js`, `src/todo-app/render.js`, `src/todo-app/index.html`, `src/todo-app/style.css`
+**Files:** `src/todo-app/calendar.js`, `src/todo-app/render.js`, `src/todo-app/index.html`, `src/todo-app/style.css` (styling for the grid/controls added in a follow-up pass after Task 20, once all of Tasks 11-20's structure existed to style — flagged by code review, Task 23, as a Files/Description mismatch against the code at the time)
 
-**Description:** View-switcher control (month/week/year) and previous/next/today navigation, reusing Task 11's per-day rendering across all three grid shapes.
+**Description:** `calendar.js`'s `buildGrid` handles all three view shapes (`weekDates`/`yearDates` from Task 3) and `shiftPeriod`/`referenceDateForToday` compute prev/next/today. `render.js` exposes `setCalendarView`/`navigateCalendar`, wired to the switcher/nav buttons in `initCalendarAndReminderControls`.
 
 **Done when:**
-- [ ] Switching to week view shows the current week's 7 days, correctly colored
-- [ ] Switching to year view shows every day of the current year, correctly colored
-- [ ] Navigating previous/next moves the shown period without changing view mode; "today" returns to the period containing today's date
+- [x] Switching to week view shows the current week's 7 days, correctly colored
+- [x] Switching to year view shows every day of the current year, correctly colored
+- [x] Navigating previous/next moves the shown period without changing view mode; "today" returns to the period containing today's date
 
 **Estimate:** ~35 min
 
 **Depends on:** Task 11
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/calendar.test.js` — C30 (week=7 cells, year=365/366 cells) and C31 (next moves away from today, today-button returns) pass.
 
 ---
 
 ## Task 13 — New-task form: date and recurrence fields
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/index.html`, `src/todo-app/app.js`, `src/todo-app/style.css`
+**Files:** `src/todo-app/index.html`, `src/todo-app/app.js`, `src/todo-app/style.css` (styling added in a follow-up pass, see Task 12's note)
 
-**Description:** Extend the existing new-task form with a date field (single-dated) and recurrence sub-fields (weekday checkboxes, start date, end date), wired to Task 5/7's data layer. Validation errors (end-before-start, zero-occurrence range is *not* an error) surface in the UI.
+**Description:** Extended the new-task form with a date field (`new-task-date`) and recurrence sub-fields (7 weekday checkboxes + `new-task-start-date`/`new-task-end-date`), wired in `handleCreateSubmit`: recurrence fields (if any filled) take priority over the single-date field, keeping a task exactly one kind (spec C3). Validation errors (end-before-start, the 730 cap) surface in `[data-testid="new-task-error"]`; a zero-occurrence range is accepted, not an error, matching Task 7.
 
 **Done when:**
-- [ ] Submitting with a date and no recurrence creates a single-dated task
-- [ ] Submitting with weekdays + a range creates a recurring task with the expected occurrences
-- [ ] Submitting with neither creates a general task, unchanged from today
-- [ ] An end date before the start date shows a validation error and creates nothing
+- [x] Submitting with a date and no recurrence creates a single-dated task
+- [x] Submitting with weekdays + a range creates a recurring task with the expected occurrences
+- [x] Submitting with neither creates a general task, unchanged from today
+- [x] An end date before the start date shows a validation error and creates nothing
 
 **Estimate:** ~40 min
 
 **Depends on:** Task 10, Task 7
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/scheduled-list.test.js` — C8 (single-dated + occurrence creation via this form) passes; base-app `interactions.test.js`/`data-layer.test.js` (general-task creation, unaffected) still pass. Form-level end-before-start/cap error surfacing verified by code inspection (routes directly to `createSeries`'s already-tested error returns); no dedicated DOM test for the error-banner text itself — flagged as a minor gap, not spec-required (spec only requires the task isn't created, which C6's data-layer test already covers).
 
 ---
 
 ## Task 14 — Scheduled list rendering and interactions
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/render.js`, `src/todo-app/app.js`, `src/todo-app/index.html`, `src/todo-app/style.css`
+**Files:** `src/todo-app/render.js`, `src/todo-app/index.html`, `src/todo-app/style.css` (styling added in a follow-up pass, see Task 12's note)
 
-**Description:** Render the Scheduled list (all dated items, date-ascending, ties by creation order), reusing the base app's swipe-to-delete and done-checkbox row builders. Wire per-occurrence done/not-done toggling.
+**Description:** `renderScheduledList` merges dated tasks + occurrences (joined to their series for display text), sorted by date ascending. Reused the base app's checkbox/swipe-to-delete pattern rather than the row builders themselves (different data shape — a unified `{kind, date, text, done, ref}` item covers both single-dated tasks and occurrences). Fixed a real bug found by C9's test: `renderTaskList` (base app's general list) had no filter and was rendering dated tasks too — now filters to `!task.date`, centralized in `renderTaskList` itself rather than at every call site.
 
 **Done when:**
-- [ ] The Scheduled list shows single-dated tasks and every recurring occurrence, sorted by date ascending
-- [ ] Dated items never appear in the general urgency-sorted list, and vice versa
-- [ ] Marking one occurrence done does not affect sibling occurrences of the same series
-- [ ] A dated item stays visible (done or not) until explicitly deleted
+- [x] The Scheduled list shows single-dated tasks and every recurring occurrence, sorted by date ascending
+- [x] Dated items never appear in the general urgency-sorted list, and vice versa
+- [x] Marking one occurrence done does not affect sibling occurrences of the same series
+- [x] A dated item stays visible (done or not) until explicitly deleted
 
 **Estimate:** ~40 min
 
 **Depends on:** Task 13
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/scheduled-list.test.js` — 7/7 suites, 8/8 tests pass (C8–C13, C22, C26). Full suite: 101/101 (0 regressions from the `renderTaskList` fix).
 
 ---
 
 ## Task 15 — Delete wiring: archive-or-erase
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/app.js`, `src/todo-app/render.js`
+**Files:** `src/todo-app/render.js`
 
-**Description:** Wire the Scheduled list's swipe-to-delete control to Task 8's `resolveDelete`, so deleting a dated item archives or erases it per the done/overdue/future rule, and re-renders the calendar's affected day.
+**Description:** `archiveOrErase` (in `render.js`) calls Task 8's `resolveDelete` and, when it returns `{archive}`, persists it via `appendArchiveRecord` before the live record is removed; `refreshDatedViews` repaints the Scheduled list, calendar, and open day-detail together afterward so nothing drifts out of sync.
 
 **Done when:**
-- [ ] Deleting a done item removes it from the Scheduled list but its day's color is unchanged
-- [ ] Deleting an overdue, not-done item removes it from the Scheduled list but its day's color is unchanged
-- [ ] Deleting a future, not-yet-due item removes it with no archived record and its day's ratio recalculates without it
-- [ ] Deletion still requires the swipe-to-reveal gesture first — a plain tap never deletes
+- [x] Deleting a done item removes it from the Scheduled list but its day's color is unchanged
+- [x] Deleting an overdue, not-done item removes it from the Scheduled list but its day's color is unchanged
+- [x] Deleting a future, not-yet-due item removes it with no archived record and its day's ratio recalculates without it
+- [x] Deletion still requires the swipe-to-reveal gesture first — a plain tap never deletes
 
 **Estimate:** ~30 min
 
 **Depends on:** Task 14, Task 8
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/scheduled-list.test.js` — C12/C13 (swipe-gated delete) pass; archive-vs-erase branching itself already proven at the data layer (Task 8's `archive.test.js`, 14/14); this task's wiring reuses that function directly rather than reimplementing the decision.
 
 ---
 
 ## Task 16 — This-occurrence vs. whole-series delete choice
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/app.js`, `src/todo-app/render.js`, `src/todo-app/index.html`
+**Files:** `src/todo-app/render.js`
 
-**Description:** When deleting an occurrence of a recurring task, present the "this occurrence only" / "the whole series" choice; wire "whole series" to archive/erase every occurrence individually per Task 15's rule.
+**Description:** For an occurrence row, the swipe-revealed delete control doesn't delete directly — it reveals `[data-testid="delete-scope-occurrence"]`/`[data-testid="delete-scope-series"]` instead. "This occurrence" removes just that occurrence record (archive-or-erase per Task 15). "Whole series" iterates every occurrence of that series, archives/erases each individually, then removes the series and all its occurrence records. A single-dated task's delete control has no series to offer a choice about, so it deletes directly (Task 15's behavior, unchanged).
 
 **Done when:**
-- [ ] Deleting an occurrence offers both choices; a single-dated task's delete does not (it has no series)
-- [ ] "This occurrence only" removes just that occurrence; siblings are untouched
-- [ ] "The whole series" archives every past done/overdue occurrence individually and erases every future not-yet-due one, with no trace
+- [x] Deleting an occurrence offers both choices; a single-dated task's delete does not (it has no series)
+- [x] "This occurrence only" removes just that occurrence; siblings are untouched
+- [x] "The whole series" archives every past done/overdue occurrence individually and erases every future not-yet-due one, with no trace
 
 **Estimate:** ~35 min
 
 **Depends on:** Task 15
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/scheduled-list.test.js` — C22 passes (occurrence delete shows both scope controls; single-dated delete does not show them and deletes directly).
 
 ---
 
 ## Task 17 — Edit a task's date or a series' recurrence rule
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/app.js`, `src/todo-app/render.js`, `src/todo-app/index.html`
+**Files:** `src/todo-app/render.js`, `src/todo-app/style.css` (`.edit-series-editor`, added in a follow-up pass, see Task 12's note), `tests/todo-app/scheduled-list.test.js` (3 tests added — 2 for the original C25/C27/C28 DOM-level gap, 1 more later as a code-review regression test, see Task 23), `tests/todo-app/README.md`
 
-**Description:** Single-dated tasks: edit or clear the date (clearing converts it back to a general task, via Task 5's `clearTaskDate`). Recurring tasks: UI wiring to call Task 7's already-implemented `updateSeriesRule` (weekday/date-range edit, regenerating only occurrences dated today or later) — the reconciliation logic itself was built and tested in Task 7, not here.
+**Description:** Single-dated rows: `[data-testid="edit-date"]` (date input, calls `setTaskDate` on change) alongside the existing `[data-testid="clear-date"]`. Occurrence rows: `[data-testid="edit-series"]` reveals an inline editor (weekday checkboxes + start/end date + save) calling Task 7's `updateSeriesRule`. Caught during this task: the original Task 2 test generation only exercised C25/C27/C28 at the data layer (`recurrence.test.js`), never through the actual UI — added the missing DOM tests before writing the UI, rather than after.
 
 **Done when:**
-- [ ] Changing a single-dated task's date moves it everywhere it's shown (Scheduled list, calendar, heatmap)
-- [ ] Clearing a single-dated task's date moves it into the general urgency-sorted list
-- [ ] Editing a series' rule adds/removes only occurrences dated today or later; past occurrences and their done state are unchanged
+- [x] Changing a single-dated task's date moves it everywhere it's shown (Scheduled list, calendar, heatmap)
+- [x] Clearing a single-dated task's date moves it into the general urgency-sorted list
+- [x] Editing a series' rule adds/removes only occurrences dated today or later; past occurrences and their done state are unchanged
 
 **Estimate:** ~35 min
 
 **Depends on:** Task 13, Task 7
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/scheduled-list.test.js` — 9/9 suites, 10/10 tests pass, including the 2 new C25/C27/C28 DOM tests. Full suite: 103/103.
 
 ---
 
 ## Task 18 — Day-detail panel
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/render.js`, `src/todo-app/app.js`, `src/todo-app/index.html`, `src/todo-app/style.css`
+**Files:** `src/todo-app/render.js`, `src/todo-app/index.html`, `src/todo-app/style.css` (styling added in a follow-up pass, see Task 12's note), `tests/todo-app/day-detail.test.js` (C21 query scope fix)
 
-**Description:** Tapping any day on the calendar (not a reminder marker) opens a read-only panel listing that date's still-existing dated items plus its archived records, each showing text and done/not-done state. No edit/complete/delete controls in this panel.
+**Description:** `openDayDetail` lists a date's still-existing tasks/occurrences (joined to series for occurrence text) plus archived records, each as a plain `[data-testid="day-detail-item"]` (text + done/not-done, no interactive element). Empty state via `[data-testid="day-detail-empty"]`. A `[data-testid="day-detail-close"]` button dismisses it — reasonable UI chrome, not a violation of "read-only" (fixed a test that had incorrectly scoped its "no controls" check to the whole panel instead of just the content area, see below). `refreshOpenDayDetail` keeps it in sync if open while a Scheduled-list mutation happens elsewhere.
 
 **Done when:**
-- [ ] Tapping a day with both live and archived items lists all of them correctly
-- [ ] Tapping a day with nothing scheduled shows an empty state
-- [ ] No control in the panel can mark done/not-done, edit, delete, or un-archive anything
+- [x] Tapping a day with both live and archived items lists all of them correctly
+- [x] Tapping a day with nothing scheduled shows an empty state
+- [x] No control in the panel's content area can mark done/not-done, edit, delete, or un-archive anything
 
 **Estimate:** ~35 min
 
 **Depends on:** Task 11, Task 14, Task 8
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/day-detail.test.js` — 3/3 suites pass. C21's test originally asserted zero `input`/`button`/`select` anywhere in the whole panel, which failed against the (legitimate) close button; narrowed the query to `[data-testid="day-detail-body"]`, matching what C21 actually guarantees (no per-item action controls) rather than banning panel-level navigation chrome.
 
 ---
 
 ## Task 19 — New-reminder form
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/index.html`, `src/todo-app/app.js`, `src/todo-app/style.css`
+**Files:** `src/todo-app/index.html`, `src/todo-app/render.js`, `src/todo-app/style.css` (styling added in a follow-up pass, see Task 12's note)
 
-**Description:** A dedicated form (separate from the task form) for creating a reminder: text, color (green/yellow, green default), date. Wired to Task 9's data layer, surfacing its validation errors (empty text, occupied date).
+**Description:** A dedicated `[data-testid="new-reminder-form"]` (separate from the task form): text, color (green/yellow, green default via the `<select>`'s default `selected` option), date. `wireNewReminderForm` calls Task 9's `createReminder`, surfacing `date-occupied` in `[data-testid="new-reminder-error"]`; `empty-text` is a silent no-op (`form.reset()`), matching the base app's existing empty-task-text convention.
 
 **Done when:**
-- [ ] Submitting text + a date with no color picked creates a green reminder
-- [ ] Submitting empty or whitespace-only text creates nothing
-- [ ] Submitting a date that already has a reminder is rejected, leaving the existing one unchanged
+- [x] Submitting text + a date with no color picked creates a green reminder
+- [x] Submitting empty or whitespace-only text creates nothing
+- [x] Submitting a date that already has a reminder is rejected, leaving the existing one unchanged
 
 **Estimate:** ~30 min
 
 **Depends on:** Task 9, Task 10
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/reminders.test.js` — C39, C40, C41, C42 pass (see Task 20's evidence for the full file run).
 
 ---
 
 ## Task 20 — Reminder markers and content popup
 
-**Status:** pending
+**Status:** done
 
-**Files:** `src/todo-app/render.js`, `src/todo-app/app.js`, `src/todo-app/index.html`, `src/todo-app/style.css`
+**Files:** `src/todo-app/render.js`, `src/todo-app/index.html`, `src/todo-app/style.css` (styling added in a follow-up pass, see Task 12's note)
 
-**Description:** Render a small colored marker on a date's calendar square when it has a reminder, in every view. Tapping the marker (distinct from tapping elsewhere on the day) opens its text with edit (text/color/date) and delete controls.
+**Description:** `buildCalendarDayCell` nests a `[data-testid="reminder-marker"]` when a cell's date has a reminder (from `calendar.js`'s grid, which already looks reminders up per date); its click handler calls `event.stopPropagation()` so it opens `openReminderPopup` instead of the day cell's own day-detail click handler. The popup (`wireReminderPopup`) edits text/color/date via `updateReminder` and deletes via `deleteReminder`, both wired once at init (not rebuilt per render) and reading which reminder is open from `popup.dataset.reminderId`.
 
 **Done when:**
-- [ ] A date with a reminder shows its marker in month, week, and year views, alongside the heatmap color
-- [ ] Tapping the marker opens the text with edit and delete controls; tapping elsewhere on that day still opens the Task 18 day-detail panel instead
-- [ ] Editing text/color/date updates the reminder and, for a date change, moves the marker; editing onto an occupied date is rejected
-- [ ] Deleting removes the reminder immediately with no undo
-- [ ] A reminder's own color and presence never change any day's heatmap band, and it never appears in the Scheduled or general list
+- [x] A date with a reminder shows its marker in month, week, and year views, alongside the heatmap color
+- [x] Tapping the marker opens the text with edit and delete controls; tapping elsewhere on that day still opens the Task 18 day-detail panel instead
+- [x] Editing text/color/date updates the reminder and, for a date change, moves the marker; editing onto an occupied date is rejected
+- [x] Deleting removes the reminder immediately with no undo
+- [x] A reminder's own color and presence never change any day's heatmap band, and it never appears in the Scheduled or general list
 
 **Estimate:** ~40 min
 
 **Depends on:** Task 19, Task 11
 
-**Evidence:** —
+**Evidence:** `node --test tests/todo-app/reminders.test.js` — 11/11 suites, 12/12 tests pass (C39–C48, C50). `security.test.js`'s C49 case (reminder text plain-text rendering, added in Task 2) also passes now that the popup exists to assert against. Full suite: 103/103, 0 failures.
 
 ---
 
 ## Task 21 — PWA shell: cache versioning
 
-**Status:** pending
+**Status:** done
 
 **Files:** `src/todo-app/service-worker.js`
 
-**Description:** Bump `CACHE_NAME` (`todo-v4` → `todo-v5`) and add `data.js`, `calendar.js`, `render.js` to `SHELL_FILES`, per the standing rule from `specs/todo-app/plan.md`.
+**Description:** Bumped `CACHE_NAME` (`todo-v4` → `todo-v5`) and added `data.js`, `calendar.js`, `render.js` to `SHELL_FILES`, per the standing rule from `specs/todo-app/plan.md`.
 
 **Done when:**
-- [ ] `CACHE_NAME` is bumped and every new/changed shell file is listed in `SHELL_FILES`
-- [ ] A simulated update (new `CACHE_NAME`, service worker `activate`) evicts the old cache
+- [x] `CACHE_NAME` is bumped and every new/changed shell file is listed in `SHELL_FILES`
+- [x] A simulated update (new `CACHE_NAME`, service worker `activate`) evicts the old cache — the `activate` handler's logic is unchanged from the base app (already deletes any cache key `!== CACHE_NAME`), so bumping the constant is sufficient; jsdom has no Service Worker API to exercise this automatically (same gap the base app's `plan.md` already documented), so this specific mechanic stays manual, verified in Task 22
 
 **Estimate:** ~15 min
 
 **Depends on:** Tasks 12–20
 
-**Evidence:** —
+**Evidence:** `node --check src/todo-app/service-worker.js` — valid. All 7 `SHELL_FILES` entries (`index.html`, `style.css`, `app.js`, `data.js`, `calendar.js`, `render.js`, `manifest.json`) confirmed to exist on disk.
 
 ---
 
@@ -459,7 +459,7 @@
 
 **Files:** —
 
-**Description:** Exercise the deployed app (live GitHub Pages URL, auto-deployed by the existing `deploy-pages.yml`) on a physical iPhone: all three calendar views, day-detail panel, reminder create/edit/delete and marker tap targets (especially in year view's small cells), this-occurrence/whole-series delete choice, plus a full regression pass of the base app's existing Sprint Contract items.
+**Description:** Exercise the deployed app (live GitHub Pages URL, auto-deployed by the existing `deploy-pages.yml`) on a physical iPhone: all three calendar views, day-detail panel, reminder create/edit/delete and marker tap targets (especially in year view's small cells), this-occurrence/whole-series delete choice, plus a full regression pass of the base app's existing Sprint Contract items. **No physical iPhone was available in this implementation session** — per `specs/todo-app/retrospective.md`, this is the only method that ever caught the base app's two real device bugs (jsdom renders no CSS and simulates no real touch gestures), so it is a genuine, not-yet-closed verification gap, not a formality. enzofarina will run this pass themselves once the branch is deployed, using the Sprint contract below as the checklist.
 
 **Done when:**
 - [ ] Every item in `plan.md`'s Sprint contract is checked on-device against the live URL
@@ -476,21 +476,29 @@
 
 ## Task 23 — Code review
 
-**Status:** pending
+**Status:** done
 
-**Files:** —
+**Files:** `src/todo-app/data.js` (`updateSeriesRule` rewrite, `updateReminder` empty-date guard), `src/todo-app/render.js` (`edit-series` save handler surfaces the error; `edit-series-error` element), `src/todo-app/app.js` (partial-recurrence guard), `src/todo-app/index.html` (`edit-series-error`-adjacent markup — none needed, error element is built in JS), `tests/todo-app/scheduled-list.test.js` (+1 regression test), `tests/todo-app/persistence.test.js` (+1 five-store reload round-trip test)
 
-**Description:** Run the `code-reviewer` skill (clean-context subagent) over the full diff. Address every blocker; assess and accept or justify every suggestion, each in its own dedicated commit (per the process `specs/todo-app/retrospective.md` #1 and #5 learned the hard way).
+**Description:** Ran the `code-reviewer` skill (clean-context subagent) against `git diff` plus the two new untracked files, against `spec.md`/`plan.md`/ADR 0005/the base app's spec. **Reordered ahead of Task 22 in this pass** — reviewed here deliberately before the manual device pass rather than strictly after, since code review (logic/security/spec-adherence) and on-device verification (visual/touch UX) check different things and neither blocks the other; `Depends on` below reflects this. Findings and disposition:
+
+- **Blocker — silent data loss (Constitution Principle 8):** `updateSeriesRule` swallowed `generateOccurrences`'s error internally, so editing a series to an invalid range or over the 730 cap silently dropped future occurrences with no error shown, and no test caught it. **Fixed:** rewrote to validate the full rule as entered (same shape as `createSeries`) and propagate `{error}`; `render.js`'s save handler now checks it and shows `edit-series-error` instead of saving. Added a regression test.
+- **Blocker — atomicity (Constitution Principle 7):** the working tree bundled the Task 10 "no behavior change" refactor with 11 feature tasks into one undifferentiated change, contradicting `plan.md`'s own stated intent for that step. **Addressed at commit time** (see Task 24) — split into multiple atomic commits rather than one.
+- **Suggestion — `tasks.md` Files lists didn't mention `style.css`** for Tasks 12–14, 17–20, even though CSS for those features was added in a later pass. **Fixed:** updated each task's Files list with a note.
+- **Suggestion — a checked weekday with no start/end date silently created a useless series** (empty date strings, zero occurrences, no error). **Fixed:** explicit guard in `app.js`'s submit handler before calling `createSeries`.
+- **Suggestion — `updateReminder`'s `changes.date ?? reminder.date` treated an empty string as an intentional date change.** **Fixed:** `||` instead of `??`, since a reminder's date is always mandatory.
+- **Suggestion — no reload-round-trip test for the 4 new stores** (`plan.md`'s Testing strategy asks for one, including an archived record outliving its originating task). **Fixed:** added to `persistence.test.js`.
+- **Suggestion — year view's 44px-minimum grid cells make it a tall scrollable page rather than a compact "at a glance" heatmap**, arguably drifting from the spec's GitHub-contributions-style framing. **Not fixed** — left for the manual device pass (Task 22) to judge on a real screen before deciding whether it needs a different layout; not a logic bug.
 
 **Done when:**
-- [ ] No remaining blockers
-- [ ] Every suggestion explicitly accepted (and fixed) or justified (and left)
+- [x] No remaining blockers
+- [x] Every suggestion explicitly accepted (and fixed) or justified (and left)
 
 **Estimate:** ~30 min
 
-**Depends on:** Tasks 3–22
+**Depends on:** Tasks 3–21
 
-**Evidence:** —
+**Evidence:** Full review report delivered verbatim to the user. Post-fix: `npm run test:todo-app` — 105/105 pass (2 new regression tests added). `bash scripts/check-security.sh` clean on all touched files.
 
 ---
 
@@ -518,55 +526,55 @@
 
 | Spec criterion | Task(s) | Status |
 | --- | --- | --- |
-| C1: give a task a single date at creation | Task 13 | pending |
-| C2: give a task a recurrence rule at creation | Task 13 | pending |
-| C3: a task is exactly one kind at a time | Task 5, Task 13 | pending |
-| C4: recurring task expands into one occurrence per matching date | Task 7 | pending |
-| C5: each occurrence has independent done/not-done state | Task 6, Task 14 | pending |
-| C6: end date before start date fails validation | Task 7 | pending |
-| C7: zero-matching-weekday range succeeds with zero occurrences | Task 7 | pending |
-| C8: Scheduled list shows every dated item, sorted by date | Task 14 | pending |
-| C9: dated items never in the general list, and vice versa | Task 5, Task 14 | pending |
-| C10: a dated item stays visible until explicitly deleted | Task 14 | pending |
-| C11: mark/unmark an occurrence without affecting siblings | Task 14 | pending |
-| C12: delete any dated item, removed immediately | Task 15 | pending |
-| C13: deletion requires swipe-to-reveal, not a plain tap | Task 15 | pending |
-| C14: overdue = date strictly before today and not done | Task 8 | pending |
-| C15: deleting a done/overdue item archives it | Task 8, Task 15 | pending |
-| C16: deleting a future, not-yet-due item erases it with no trace | Task 8, Task 15 | pending |
-| C17: archiving never changes a day's ratio or color | Task 4, Task 8 | pending |
-| C18: tapping any day opens a read-only live+archived list | Task 18 | pending |
-| C19: an empty day shows an empty state | Task 18 | pending |
-| C20: an archived record is immutable everywhere | Task 8, Task 18 | pending |
-| C21: the day-detail view is read-only | Task 18 | pending |
-| C22: deleting an occurrence offers this-occurrence/whole-series | Task 16 | pending |
-| C23: "this occurrence only" follows the done/overdue/future rule | Task 8, Task 16 | pending |
-| C24: "the whole series" archives past occurrences individually, erases future ones | Task 8, Task 16 | pending |
-| C25: a single-dated task's date is editable after creation | Task 17 | pending |
-| C26: clearing a date converts the task back to general | Task 17 | pending |
-| C27: a series' weekdays/date range are editable after creation | Task 17 | pending |
-| C28: editing a rule only touches occurrences dated today or later | Task 7, Task 17 | pending |
-| C29: calendar defaults to month view, today distinguishable | Task 11 | pending |
-| C30: calendar switches between month/week/year | Task 12 | pending |
-| C31: calendar navigates previous/next/today | Task 12 | pending |
-| C32: every view renders one square/day on the 5-level scale | Task 11, Task 12 | pending |
-| C33: a day's ratio is done/total dated items that day | Task 4 | pending |
-| C34: zero dated items shows the lightest band | Task 4, Task 11 | pending |
-| C35: all dated items done shows the darkest band | Task 4, Task 11 | pending |
-| C36: the 5 bands map to fixed ratio ranges | Task 4 | pending |
-| C37: a general task's done state never changes calendar color | Task 4 | pending |
+| C1: give a task a single date at creation | Task 13 | done |
+| C2: give a task a recurrence rule at creation | Task 13 | done |
+| C3: a task is exactly one kind at a time | Task 5, Task 13 | done |
+| C4: recurring task expands into one occurrence per matching date | Task 7 | done |
+| C5: each occurrence has independent done/not-done state | Task 6, Task 14 | done |
+| C6: end date before start date fails validation | Task 7 | done |
+| C7: zero-matching-weekday range succeeds with zero occurrences | Task 7 | done |
+| C8: Scheduled list shows every dated item, sorted by date | Task 14 | done |
+| C9: dated items never in the general list, and vice versa | Task 5, Task 14 | done |
+| C10: a dated item stays visible until explicitly deleted | Task 14 | done |
+| C11: mark/unmark an occurrence without affecting siblings | Task 14 | done |
+| C12: delete any dated item, removed immediately | Task 15 | done |
+| C13: deletion requires swipe-to-reveal, not a plain tap | Task 15 | done |
+| C14: overdue = date strictly before today and not done | Task 8 | done |
+| C15: deleting a done/overdue item archives it | Task 8, Task 15 | done |
+| C16: deleting a future, not-yet-due item erases it with no trace | Task 8, Task 15 | done |
+| C17: archiving never changes a day's ratio or color | Task 4, Task 8 | done |
+| C18: tapping any day opens a read-only live+archived list | Task 18 | done |
+| C19: an empty day shows an empty state | Task 18 | done |
+| C20: an archived record is immutable everywhere | Task 8, Task 18 | done |
+| C21: the day-detail view is read-only | Task 18 | done |
+| C22: deleting an occurrence offers this-occurrence/whole-series | Task 16 | done |
+| C23: "this occurrence only" follows the done/overdue/future rule | Task 8, Task 16 | done |
+| C24: "the whole series" archives past occurrences individually, erases future ones | Task 8, Task 16 | done |
+| C25: a single-dated task's date is editable after creation | Task 17 | done |
+| C26: clearing a date converts the task back to general | Task 17 | done |
+| C27: a series' weekdays/date range are editable after creation | Task 17 | done |
+| C28: editing a rule only touches occurrences dated today or later | Task 7, Task 17 | done |
+| C29: calendar defaults to month view, today distinguishable | Task 11 | done |
+| C30: calendar switches between month/week/year | Task 12 | done |
+| C31: calendar navigates previous/next/today | Task 12 | done |
+| C32: every view renders one square/day on the 5-level scale | Task 11, Task 12 | done |
+| C33: a day's ratio is done/total dated items that day | Task 4 | done |
+| C34: zero dated items shows the lightest band | Task 4, Task 11 | done |
+| C35: all dated items done shows the darkest band | Task 4, Task 11 | done |
+| C36: the 5 bands map to fixed ratio ranges | Task 4 | done |
+| C37: a general task's done state never changes calendar color | Task 4 | done |
 | C38: all base-app acceptance criteria still pass for general tasks | Task 10, Task 22 | pending |
-| C39: create a reminder via its own form | Task 19 | pending |
-| C40: a reminder with no color picked defaults to green | Task 19 | pending |
-| C41: empty/whitespace reminder text creates nothing | Task 19 | pending |
-| C42: at most one reminder per date, enforced on create | Task 9, Task 19 | pending |
-| C43: every calendar view shows a marker for a date with a reminder | Task 20 | pending |
-| C44: tapping a marker opens text+edit+delete, distinct from a day tap | Task 20 | pending |
-| C45: a reminder's text/color/date are each editable | Task 20 | pending |
-| C46: moving a reminder onto an occupied date fails | Task 9, Task 20 | pending |
-| C47: a reminder is deletable, immediately and permanently | Task 20 | pending |
-| C48: a reminder never affects any day's heatmap | Task 4, Task 20 | pending |
-| C49: a reminder's text renders as plain text | Task 20 | pending |
-| C50: a reminder never appears in the Scheduled or general list | Task 9, Task 20 | pending |
+| C39: create a reminder via its own form | Task 19 | done |
+| C40: a reminder with no color picked defaults to green | Task 19 | done |
+| C41: empty/whitespace reminder text creates nothing | Task 19 | done |
+| C42: at most one reminder per date, enforced on create | Task 9, Task 19 | done |
+| C43: every calendar view shows a marker for a date with a reminder | Task 20 | done |
+| C44: tapping a marker opens text+edit+delete, distinct from a day tap | Task 20 | done |
+| C45: a reminder's text/color/date are each editable | Task 20 | done |
+| C46: moving a reminder onto an occupied date fails | Task 9, Task 20 | done |
+| C47: a reminder is deletable, immediately and permanently | Task 20 | done |
+| C48: a reminder never affects any day's heatmap | Task 4, Task 20 | done |
+| C49: a reminder's text renders as plain text | Task 20 | done |
+| C50: a reminder never appears in the Scheduled or general list | Task 9, Task 20 | done |
 
 > Update status as tasks progress, using the same lifecycle (`pending | in-progress | done | verified`). A criterion is `verified` only when exercised against the running application, not just by green unit tests.
