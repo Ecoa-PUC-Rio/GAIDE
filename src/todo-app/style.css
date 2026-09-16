@@ -168,3 +168,204 @@ h1 {
   margin-left: auto;
   background: var(--color-red);
 }
+
+/* --- specs/task-calendar/ additions: dates, recurrence, calendar, reminders --- */
+
+:root {
+  /* White-to-blue heatmap scale (spec: band 0 = white/no data, band 5 = 100%). */
+  --band-0: #ffffff;
+  --band-1: #d6e6fb;
+  --band-2: #a9c9f5;
+  --band-3: #6ea3ec;
+  --band-4: #3d78d8;
+  --band-5: #1c4ea8;
+  --color-reminder-green: #3f9142;
+  --color-reminder-yellow: #d6a72e;
+}
+
+fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+}
+
+fieldset legend {
+  font-size: 0.85rem;
+  color: #555;
+  padding: 0 0.25rem;
+}
+
+.weekday-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.weekday-picker label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.form-error {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border: 1px solid var(--color-error-text);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.scheduled-list {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.scheduled-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  position: relative;
+}
+
+.scheduled-item.done .scheduled-text {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.scheduled-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.calendar {
+  margin-bottom: 1.5rem;
+}
+
+.calendar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.calendar-controls button {
+  font-size: 16px;
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-bg);
+  cursor: pointer;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  position: relative;
+  background: var(--band-0);
+}
+
+.calendar-day.band-0 { background: var(--band-0); }
+.calendar-day.band-1 { background: var(--band-1); }
+.calendar-day.band-2 { background: var(--band-2); }
+.calendar-day.band-3 { background: var(--band-3); }
+.calendar-day.band-4 { background: var(--band-4); }
+.calendar-day.band-5 { background: var(--band-5); }
+
+.calendar-day.today {
+  outline: 2px solid var(--color-text);
+  outline-offset: -2px;
+}
+
+.reminder-marker {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.reminder-marker.reminder-green {
+  background: var(--color-reminder-green);
+}
+
+.reminder-marker.reminder-yellow {
+  background: var(--color-reminder-yellow);
+}
+
+.day-detail,
+.reminder-popup {
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.day-detail-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  border: none;
+  background: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.edit-series-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.new-reminder-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.new-reminder-form input,
+.new-reminder-form select,
+.new-reminder-form button {
+  font-size: 16px;
+  min-height: var(--touch-target);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0 0.75rem;
+}
