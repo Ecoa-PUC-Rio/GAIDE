@@ -257,20 +257,29 @@ export function createSeries({ text, description = '', urgency = 'green', weekda
 // done state are never rewritten by a later rule edit); occurrences dated
 // today or later are reconciled against `newRule`, reusing an existing
 // occurrence's id/done-state where one already exists on the matching date.
+//
+// Validates the full rule exactly as `createSeries` does (same error shapes:
+// {error:'invalid-range'} / {error:'too-many-occurrences'}) before touching
+// anything — code review (specs/task-calendar/tasks.md Task 23) caught an
+// earlier version of this function that windowed the range to [today, end]
+// before validating, which both (a) let a genuinely invalid edit through
+// silently, dropping future occurrences with no error, the exact class of
+// bug Constitution Principle 8 exists to prevent, and (b) could report a
+// false invalid-range for a legitimate "stop this series" edit (an end date
+// in the past), since clamping the start date up to `today` while the end
+// date stayed in the past made two other-wise-valid dates look inverted.
+// Validating the rule as the user actually entered it avoids both.
 export function updateSeriesRule(series, occurrences, newRule, today) {
+  const validated = generateOccurrences(newRule);
+  if (!Array.isArray(validated)) return { error: validated.error };
+
   const past = occurrences.filter((occurrence) => occurrence.date < today);
-
-  const regenerated = generateOccurrences({
-    weekdays: newRule.weekdays,
-    startDate: today > newRule.startDate ? today : newRule.startDate,
-    endDate: newRule.endDate,
-  });
-  const futureDates = Array.isArray(regenerated) ? regenerated.filter((date) => date >= today) : [];
-
-  const future = futureDates.map((date) => {
-    const existing = occurrences.find((o) => o.seriesId === series.id && o.date === date);
-    return existing ?? { id: crypto.randomUUID(), seriesId: series.id, date, done: false };
-  });
+  const future = validated
+    .filter((date) => date >= today)
+    .map((date) => {
+      const existing = occurrences.find((o) => o.seriesId === series.id && o.date === date);
+      return existing ?? { id: crypto.randomUUID(), seriesId: series.id, date, done: false };
+    });
 
   return {
     series: { ...series, weekdays: newRule.weekdays, startDate: newRule.startDate, endDate: newRule.endDate },
@@ -327,7 +336,10 @@ export function createReminder({ text, color, date }, existingReminders = []) {
 }
 
 export function updateReminder(reminder, changes, existingReminders = []) {
-  const nextDate = changes.date ?? reminder.date;
+  // `|| reminder.date`, not `??`: a reminder's date is mandatory, so an
+  // empty string (e.g. a blanked-out date input) must fall back to the
+  // existing date, not silently become '' — flagged by code review (Task 23).
+  const nextDate = changes.date || reminder.date;
   const collides = existingReminders.some((r) => r.id !== reminder.id && r.date === nextDate);
   if (nextDate !== reminder.date && collides) return { error: 'date-occupied' };
   return { ...reminder, ...changes, date: nextDate };

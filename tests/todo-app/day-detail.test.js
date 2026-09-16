@@ -43,7 +43,7 @@ describe('C19: a day with nothing scheduled shows an empty state', () => {
 });
 
 describe('C21: the day-detail view is strictly read-only', () => {
-  test('no checkbox, edit, delete, or un-archive control exists anywhere in the panel', async () => {
+  test('no checkbox, edit, delete, or un-archive control exists for any listed item', async () => {
     const date = isoDaysFromToday(-1);
     const window = await loadApp({
       seedTasks: [
@@ -52,6 +52,10 @@ describe('C21: the day-detail view is strictly read-only', () => {
       seedArchive: [{ id: 'a1', date, text: 'Archived', done: true, archivedAt: 1 }],
     });
     const panel = openDay(window, date);
-    assert.equal(panel.querySelectorAll('input, button, select').length, 0);
+    // Scoped to the content area, not the whole panel — a close/dismiss
+    // control on the panel itself is UI chrome, not a per-item action C21
+    // forbids (mark done/edit/delete/un-archive an item).
+    const body = panel.querySelector('[data-testid="day-detail-body"]');
+    assert.equal(body.querySelectorAll('input, button, select').length, 0);
   });
 });

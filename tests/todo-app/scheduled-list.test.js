@@ -142,6 +142,74 @@ describe('C22: deleting an occurrence offers a this-occurrence/whole-series choi
   });
 });
 
+describe('C25: a single-dated task\'s date can be changed after creation', () => {
+  test('changing the date input moves the task to the new date everywhere', async () => {
+    const oldDate = isoDaysFromToday(1);
+    const newDate = isoDaysFromToday(5);
+    const window = await loadApp({
+      seedTasks: [
+        { id: 't1', text: 'Dated', description: '', urgency: 'green', done: false, createdAt: 1, date: oldDate },
+      ],
+    });
+    const row = window.document.querySelector('[data-testid="scheduled-item"]');
+    const editDate = row.querySelector('[data-testid="edit-date"]');
+    editDate.value = newDate;
+    editDate.dispatchEvent(new window.Event('change', { bubbles: true }));
+
+    const updatedRow = window.document.querySelector('[data-testid="scheduled-item"]');
+    assert.equal(updatedRow.dataset.date, newDate);
+  });
+});
+
+describe('C27 + C28: a series\' recurrence rule can be edited after creation', () => {
+  test('editing the weekday/range via the inline editor updates future occurrences only', async () => {
+    const window = await loadApp({
+      seedSeries: [
+        { id: 's1', text: 'Ler', description: '', urgency: 'green', weekdays: [1], startDate: isoDaysFromToday(-7), endDate: isoDaysFromToday(30), createdAt: 1 },
+      ],
+      seedOccurrences: [
+        { id: 'o1', seriesId: 's1', date: isoDaysFromToday(-7), done: true },
+      ],
+    });
+    const row = window.document.querySelector('[data-testid="scheduled-item"][data-kind="occurrence"]');
+    row.querySelector('[data-testid="edit-series"]').click();
+
+    const weekdayCheckbox = window.document.querySelector('[data-testid="edit-series-weekday"][value="1"]');
+    weekdayCheckbox.checked = true;
+    window.document.querySelector('[data-testid="edit-series-end-date"]').value = isoDaysFromToday(7);
+    window.document.querySelector('[data-testid="edit-series-save"]').click();
+
+    const rows = [...window.document.querySelectorAll('[data-testid="scheduled-item"]')];
+    // The past, already-done occurrence (7 days ago) survives the edit untouched.
+    assert.ok(rows.some((r) => r.dataset.date === isoDaysFromToday(-7)));
+    // No occurrence beyond the new, shortened end date.
+    assert.ok(!rows.some((r) => r.dataset.date > isoDaysFromToday(7)));
+  });
+
+  test('editing to an invalid range (end before start) shows an error and drops nothing (regression: code review Task 23)', async () => {
+    const window = await loadApp({
+      seedSeries: [
+        { id: 's1', text: 'Ler', description: '', urgency: 'green', weekdays: [0, 1, 2, 3, 4, 5, 6], startDate: isoDaysFromToday(0), endDate: isoDaysFromToday(30), createdAt: 1 },
+      ],
+      seedOccurrences: [
+        { id: 'o1', seriesId: 's1', date: isoDaysFromToday(1), done: false },
+        { id: 'o2', seriesId: 's1', date: isoDaysFromToday(2), done: false },
+      ],
+    });
+    const row = window.document.querySelector('[data-testid="scheduled-item"][data-kind="occurrence"]');
+    row.querySelector('[data-testid="edit-series"]').click();
+
+    // Shortened end date lands before the (unchanged) start date.
+    window.document.querySelector('[data-testid="edit-series-end-date"]').value = isoDaysFromToday(-5);
+    window.document.querySelector('[data-testid="edit-series-save"]').click();
+
+    assert.equal(window.document.querySelector('[data-testid="edit-series-error"]').hidden, false);
+    // Nothing was silently dropped — both future occurrences are still there.
+    const rows = [...window.document.querySelectorAll('[data-testid="scheduled-item"]')];
+    assert.equal(rows.filter((r) => r.dataset.kind === 'occurrence').length, 2);
+  });
+});
+
 describe('C26: clearing a single-dated task\'s date converts it back to general', () => {
   test('after clearing the date, the task moves from the Scheduled list to the general list', async () => {
     const window = await loadApp({

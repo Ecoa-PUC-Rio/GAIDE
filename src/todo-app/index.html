@@ -43,10 +43,88 @@
         <option value="yellow">Medium</option>
         <option value="green" selected>Chill</option>
       </select>
+
+      <fieldset class="date-fields">
+        <legend>Date (optional)</legend>
+        <input type="date" data-testid="new-task-date" aria-label="Date" />
+      </fieldset>
+
+      <fieldset class="recurrence-fields">
+        <legend>Or repeat on (optional)</legend>
+        <span class="weekday-picker" role="group" aria-label="Repeat on weekdays">
+          <label><input type="checkbox" data-testid="new-task-weekday" value="0" /> Sun</label>
+          <label><input type="checkbox" data-testid="new-task-weekday" value="1" /> Mon</label>
+          <label><input type="checkbox" data-testid="new-task-weekday" value="2" /> Tue</label>
+          <label><input type="checkbox" data-testid="new-task-weekday" value="3" /> Wed</label>
+          <label><input type="checkbox" data-testid="new-task-weekday" value="4" /> Thu</label>
+          <label><input type="checkbox" data-testid="new-task-weekday" value="5" /> Fri</label>
+          <label><input type="checkbox" data-testid="new-task-weekday" value="6" /> Sat</label>
+        </span>
+        <input type="date" data-testid="new-task-start-date" aria-label="Repeat start date" />
+        <input type="date" data-testid="new-task-end-date" aria-label="Repeat end date" />
+      </fieldset>
+
       <button type="submit">Add</button>
+      <div class="form-error" data-testid="new-task-error" role="alert" hidden></div>
     </form>
 
     <ul class="task-list" data-testid="task-list"></ul>
+
+    <h2>Scheduled</h2>
+    <ul class="scheduled-list" data-testid="scheduled-list"></ul>
+
+    <h2>Calendar</h2>
+    <div class="calendar" data-testid="calendar">
+      <div class="calendar-controls">
+        <span class="calendar-view-switcher" role="group" aria-label="Calendar view">
+          <button type="button" data-testid="calendar-view-month" aria-label="Month view">Month</button>
+          <button type="button" data-testid="calendar-view-week" aria-label="Week view">Week</button>
+          <button type="button" data-testid="calendar-view-year" aria-label="Year view">Year</button>
+        </span>
+        <span class="calendar-nav" role="group" aria-label="Calendar navigation">
+          <button type="button" data-testid="calendar-nav-prev" aria-label="Previous period">‹</button>
+          <button type="button" data-testid="calendar-nav-today" aria-label="Today">Today</button>
+          <button type="button" data-testid="calendar-nav-next" aria-label="Next period">›</button>
+        </span>
+      </div>
+      <div class="calendar-grid" data-testid="calendar-grid"></div>
+    </div>
+
+    <div class="day-detail" data-testid="day-detail" hidden>
+      <button type="button" class="day-detail-close" data-testid="day-detail-close" aria-label="Close">×</button>
+      <div class="day-detail-body" data-testid="day-detail-body"></div>
+    </div>
+
+    <div class="reminder-popup" data-testid="reminder-popup" hidden>
+      <p data-testid="reminder-popup-text"></p>
+      <input type="text" data-testid="reminder-edit-text" aria-label="Reminder text" />
+      <select data-testid="reminder-edit-color" aria-label="Reminder color">
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+      </select>
+      <input type="date" data-testid="reminder-edit-date" aria-label="Reminder date" />
+      <button type="button" data-testid="reminder-save">Save</button>
+      <button type="button" data-testid="reminder-delete">Delete</button>
+      <div class="form-error" data-testid="reminder-edit-error" role="alert" hidden></div>
+    </div>
+
+    <h2>Reminders</h2>
+    <form class="new-reminder-form" data-testid="new-reminder-form">
+      <input
+        type="text"
+        name="text"
+        data-testid="new-reminder-text"
+        placeholder="Reminder text…"
+        aria-label="Reminder text"
+      />
+      <select name="color" data-testid="new-reminder-color" aria-label="Reminder color">
+        <option value="green" selected>Green</option>
+        <option value="yellow">Yellow</option>
+      </select>
+      <input type="date" name="date" data-testid="new-reminder-date" aria-label="Reminder date" required />
+      <button type="submit">Add reminder</button>
+      <div class="form-error" data-testid="new-reminder-error" role="alert" hidden></div>
+    </form>
   </main>
 
   <script type="module" src="app.js"></script>
