@@ -9,6 +9,13 @@ const APP_DIR = path.resolve(
 const APP_MODULE_URL = pathToFileURL(path.join(APP_DIR, 'app.js')).href;
 
 export const STORAGE_KEY = 'gaide-todo-tasks';
+// Mirrors src/todo-app/data.js's storage-key constants as literals (not an
+// import) — data.js doesn't exist until Task 3, and this helper must keep
+// working for the base app's already-green tests in the meantime.
+export const SERIES_STORAGE_KEY = 'gaide-todo-series';
+export const OCCURRENCE_STORAGE_KEY = 'gaide-todo-occurrences';
+export const ARCHIVE_STORAGE_KEY = 'gaide-todo-archive';
+export const REMINDER_STORAGE_KEY = 'gaide-todo-reminders';
 
 /**
  * Loads the real src/todo-app/index.html into jsdom, optionally pre-seeding
@@ -24,7 +31,13 @@ export const STORAGE_KEY = 'gaide-todo-tasks';
  * Throws (expected, pre-implementation) until Task 4 creates index.html /
  * Task 3 creates app.js's initApp export.
  */
-export async function loadApp({ seedTasks } = {}) {
+export async function loadApp({
+  seedTasks,
+  seedSeries,
+  seedOccurrences,
+  seedArchive,
+  seedReminders,
+} = {}) {
   const dom = await JSDOM.fromFile(path.join(APP_DIR, 'index.html'), {
     // A concrete http(s) origin is required for localStorage — file:// URLs
     // are opaque origins in jsdom and have no Storage API at all. The host
@@ -40,9 +53,14 @@ export async function loadApp({ seedTasks } = {}) {
     else window.addEventListener('load', resolve);
   });
 
-  if (seedTasks) {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(seedTasks));
-  }
+  const seed = (key, value) => {
+    if (value !== undefined) window.localStorage.setItem(key, JSON.stringify(value));
+  };
+  seed(STORAGE_KEY, seedTasks);
+  seed(SERIES_STORAGE_KEY, seedSeries);
+  seed(OCCURRENCE_STORAGE_KEY, seedOccurrences);
+  seed(ARCHIVE_STORAGE_KEY, seedArchive);
+  seed(REMINDER_STORAGE_KEY, seedReminders);
 
   const { initApp } = await import(APP_MODULE_URL);
   initApp(window.document, window.localStorage);
@@ -72,6 +90,21 @@ export function inMemoryStorage(initial = {}) {
       store.delete(key);
     },
   };
+}
+
+/**
+ * The app itself has no clock-injection mechanism (matching the base app,
+ * which has none either) — anything date-relative ("today", "overdue") runs
+ * against the real system clock inside app.js/data.js, in the same Node
+ * process as the tests. Rather than hardcode fixed calendar dates for
+ * "today"-relative assertions (which would silently rot the day this suite
+ * is run on a different date than it was written), tests compute an offset
+ * from the real `Date` at run time and stay correct on any day.
+ */
+export function isoDaysFromToday(offsetDays) {
+  const date = new Date();
+  date.setDate(date.getDate() + offsetDays);
+  return date.toISOString().slice(0, 10);
 }
 
 export function throwingStorage() {
