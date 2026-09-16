@@ -1,5 +1,7 @@
-// Pure logic tests — no DOM. Imports src/todo-app/app.js directly in Node.
+// Pure logic tests — no DOM. Imports src/todo-app/data.js directly in Node.
 // Covers spec criteria: C1, C3, C13, C14, C15, C18, C19, C21.
+// (Moved from app.js to data.js in the module-split refactor —
+// specs/task-calendar/tasks.md Task 10 — same functions, same behavior.)
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -8,7 +10,7 @@ import {
   toggleDone,
   setUrgency,
   deleteTask,
-} from '../../src/todo-app/app.js';
+} from '../../src/todo-app/data.js';
 import { inMemoryStorage, throwingStorage } from './helpers/load-app.js';
 
 describe('C1: create a task from text', () => {
@@ -111,7 +113,7 @@ describe('toggleDone / deleteTask — supporting logic for C4, C5, C10, C11', ()
 
 describe('Constitution Principle 8: storage failures fail visibly, not silently', () => {
   test('a normal storage round-trips a saved task list', async () => {
-    const { saveTasks, loadTasks } = await import('../../src/todo-app/app.js');
+    const { saveTasks, loadTasks } = await import('../../src/todo-app/data.js');
     const storage = inMemoryStorage();
     const task = createTask({ text: 'persisted' });
     const result = saveTasks(storage, [task]);
@@ -120,7 +122,7 @@ describe('Constitution Principle 8: storage failures fail visibly, not silently'
   });
 
   test('a failing storage.setItem is caught, not thrown, and reported as not ok', async () => {
-    const { saveTasks } = await import('../../src/todo-app/app.js');
+    const { saveTasks } = await import('../../src/todo-app/data.js');
     const storage = throwingStorage();
     const task = createTask({ text: 'will not persist' });
     const result = saveTasks(storage, [task]);
