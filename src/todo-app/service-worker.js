@@ -1,13 +1,19 @@
-// Bump this on every change to index.html, style.css, or app.js — activate()
-// below deletes any cache that isn't this name, which is how an
-// already-installed phone actually picks up a new version (plan.md).
-const CACHE_NAME = 'todo-v4';
+// Bump this on every change to any shell file below — activate() deletes any
+// cache that isn't this name, which is how an already-installed phone
+// actually picks up a new version (plan.md). v5: specs/task-calendar/ adds
+// data.js/calendar.js/render.js as separate ES modules the browser fetches
+// alongside app.js (task 10's module split) — all three must be cached too,
+// or an offline reload after this update would fail to load the app at all.
+const CACHE_NAME = 'todo-v5';
 
 const SHELL_FILES = [
   './',
   './index.html',
   './style.css',
   './app.js',
+  './data.js',
+  './calendar.js',
+  './render.js',
   './manifest.json',
 ];
 
