@@ -2,8 +2,11 @@
 
 ```
 docs/
-├── adr/        Architecture Decision Records (use the adr-writer skill)
-└── user/       (optional) End-user documentation
+├── getting-started.md   First feature, step by step — start here
+├── mcp-setup.md         Connecting the MCP servers in each tool
+├── adr/                 Architecture Decision Records (use the adr-writer skill)
+├── assets/              README images; `python3 docs/assets/render.py` regenerates them
+└── user/                (optional) End-user documentation
 ```
 
 ## ADRs
