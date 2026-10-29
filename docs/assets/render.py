@@ -78,12 +78,14 @@ pre { padding: 16px 18px; color: #c9d1d9; font: 14px/21px 'DejaVu Sans Mono', mo
 
 HERO_CSS = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { width: 1280px; height: 420px; background: #0d1117; color: #f0f6fc;
+body { width: 1280px; height: 470px; background: #0d1117; color: #f0f6fc;
   font-family: 'DejaVu Sans', 'Noto Sans', sans-serif; padding: 56px 64px;
   background-image: radial-gradient(circle at 85% 0%, #1f6feb33, transparent 55%),
                     radial-gradient(circle at 0% 100%, #3fb95022, transparent 50%); }
 .mark { font: bold 84px/1 'DejaVu Sans Mono', monospace; letter-spacing: 6px; }
 .mark span { color: #3fb950; }
+.expand { margin-top: 14px; font: 22px 'DejaVu Sans Mono', monospace; letter-spacing: 5px;
+  text-transform: uppercase; color: #3fb950; }
 .tag { margin-top: 26px; font-size: 34px; font-weight: bold; }
 .sub { margin-top: 14px; font-size: 20px; color: #8b949e; max-width: 900px; line-height: 1.5; }
 .chips { margin-top: 34px; display: flex; gap: 12px; }
@@ -94,6 +96,7 @@ body { width: 1280px; height: 420px; background: #0d1117; color: #f0f6fc;
 
 HERO = """
 <div class="mark"><span>&gt;</span> GAIDE</div>
+<div class="expand">Governed AI Development Environment</div>
 <div class="tag">Instructions degrade. Mechanisms don't.</div>
 <div class="sub">A project template that turns your AI coding agent's rules into
 checks it cannot skip &mdash; spec first, tests first, human in command.</div>
@@ -109,6 +112,9 @@ def find_chrome():
     for name in ("google-chrome", "chromium", "chromium-browser"):
         if shutil.which(name):
             return name
+    mac_app = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    if os.path.exists(mac_app):
+        return mac_app
     sys.exit("render.py needs google-chrome or chromium on PATH")
 
 
@@ -161,7 +167,7 @@ def render_shot(chrome, sandbox, name, title, commands):
 
 def main():
     chrome = find_chrome()
-    screenshot(chrome, f"<meta charset='utf-8'><style>{HERO_CSS}</style>{HERO}", ASSETS / "hero.png", 1280, 420)
+    screenshot(chrome, f"<meta charset='utf-8'><style>{HERO_CSS}</style>{HERO}", ASSETS / "hero.png", 1280, 470)
     for name, title, commands in SHOTS:
         # A fresh clone per shot: each capture starts from the committed state.
         with tempfile.TemporaryDirectory() as tmp:

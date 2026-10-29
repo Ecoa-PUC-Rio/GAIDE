@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/hero.png" alt="GAIDE — Instructions degrade. Mechanisms don't." width="100%">
+  <img src="docs/assets/hero.png" alt="GAIDE, Governed AI Development Environment — Instructions degrade. Mechanisms don't." width="100%">
 </p>
 
 <p align="center">
@@ -14,6 +14,16 @@
   <a href="#your-first-feature">Your first feature</a> ·
   <a href="docs/getting-started.md">Full walkthrough</a> ·
   <a href="#why-each-piece-exists">Why each piece exists</a>
+</p>
+
+<p align="center">
+  <a href="docs/assets/GAIDE_Video_Presentation.mp4" title="Watch the GAIDE video presentation (MP4, 2 min)">
+    <img src="docs/assets/video-poster.png" alt="GAIDE video presentation — click to watch" width="100%">
+  </a>
+</p>
+
+<p align="center">
+  <em>Two-minute video presentation of GAIDE &mdash; <a href="docs/assets/GAIDE_Video_Presentation.mp4">watch the MP4</a>.</em>
 </p>
 
 ---
