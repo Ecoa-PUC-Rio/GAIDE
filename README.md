@@ -16,14 +16,10 @@
   <a href="#why-each-piece-exists">Why each piece exists</a>
 </p>
 
-<p align="center">
-  <a href="docs/assets/GAIDE_Video_Presentation.mp4" title="Watch the GAIDE video presentation (MP4, 2 min)">
-    <img src="docs/assets/video-poster.png" alt="GAIDE video presentation — click to watch" width="100%">
-  </a>
-</p>
+<video src="https://github.com/user-attachments/assets/70a81423-9e51-42fe-85ba-824fb08c7a81" controls poster="docs/assets/video-poster.png" width="100%" title="GAIDE video presentation (2 min)"></video>
 
 <p align="center">
-  <em>Two-minute video presentation of GAIDE &mdash; <a href="docs/assets/GAIDE_Video_Presentation.mp4">watch the MP4</a>.</em>
+  <em>Two-minute video presentation of GAIDE. No player? <a href="docs/assets/GAIDE_Video_Presentation.mp4">Open the full-resolution MP4</a>.</em>
 </p>
 
 ---
