@@ -6,6 +6,7 @@ Non-negotiables, in brief:
 
 - Read `specs/constitution.md` before any code change; follow the SDD flow (spec → plan → tasks → implementation). If no spec exists, write one first (`/spec-writer`).
 - Never edit tests or task lists to make work appear done (Principle 9); never silence security scanners (Principle 10).
+- Take the simplest shape that satisfies the spec (Principle 11): no abstraction with a single caller, no unrequested option, no dependency replacing a few lines of code — unless the plan or an ADR says why.
 - Secrets never enter versioned files; never read `.env` files, private keys, or credential stores; never `git push --force` or `git reset --hard`.
 - This tool has no inline enforcement hooks, so run the portable checks yourself: `scripts/check-file.sh` and `scripts/check-security.sh` after edits, `scripts/check-clean-state.sh` before ending a session. Pre-commit and CI enforce regardless.
 
