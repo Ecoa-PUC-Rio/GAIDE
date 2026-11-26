@@ -84,6 +84,16 @@ Suppressing a security-scanner finding (`# nosemgrep`, ignore files, allowlists,
 
 ---
 
+## Principle 11 — KISS: the simplest thing that satisfies the spec
+
+Every change takes the simplest shape that satisfies its spec. Unless the reason is written down — in the plan's trade-offs or in an ADR — the following are rejected at review: an abstraction with a single caller, a configuration option nobody asked for, a layer that only forwards calls, generality for requirements that are not in the spec, and a new dependency that replaces a few lines of code. Avoidable complexity is a finding like any other; "it works" is not an answer to "why is it this complicated?".
+
+This principle governs *how much machinery* a change carries; Principle 7 governs *how many concerns* it carries. A change can be perfectly atomic and still be over-built.
+
+**Why:** writing code is now nearly free, and reading it never will be. Asked for a feature, a generative agent will cheerfully deliver a plugin registry, three config flags and an interface with one implementation — all plausible, all of it paid for by every human who opens the file afterwards, and every extra branch a place for a bug to hide. KISS ("keep it simple, stupid", attributed to Kelly Johnson at Lockheed's Skunk Works, whose aircraft had to be repairable in the field with a handful of tools) makes simplicity an explicit design goal instead of a side effect. It is also what keeps the rest of this constitution affordable: a small, simple change is one a spec can describe (Principle 1), a test can pin down (Principle 2), and a human can actually review before approving (Principle 3).
+
+---
+
 ## Note — The harness has an expiry date
 
 The guardrails in this repository (hooks, permissions, skills, scaffolding) are calibrated to the capabilities of current AI models. **Whenever the project adopts a new model generation, re-examine the harness**: strip pieces that are no longer load-bearing (over-scaffolding holds better models back) and add pieces that newly-possible capabilities warrant. Changes go through the normal mechanism — an ADR. This note creates the trigger; the ADR process already provides the path.

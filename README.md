@@ -127,7 +127,7 @@ One honest asymmetry: a hook that rejects a bad edit *the moment it happens* exi
 - **Six skills** (`agents/skills/`) — `spec-writer`, `test-generator`, `code-reviewer`, `security-reviewer`, `verifier`, `adr-writer`. Reusable procedures, so quality does not vary by session.
 - **Two clean-context reviewers** (`agents/reviewers/`) — code and security rubrics that judge a diff without the author's rationalizations.
 - **Four enforcement checks** (`scripts/`) — secrets, per-file syntax, SAST + dependency scanning, and a "safe to walk away" check (no secrets, tests green).
-- **A constitution** (`specs/constitution.md`) — ten non-negotiable principles, changeable only through an ADR.
+- **A constitution** (`specs/constitution.md`) — eleven non-negotiable principles, changeable only through an ADR.
 - **Spec templates and a worked example** (`specs/`) — spec, plan with sprint contract, and task list.
 - **CI and pre-commit** — gitleaks, semgrep, osv-scanner, and a binding drift check on everything that reaches the repo, whoever pushed it.
 - **MCP configuration** (`.mcp.json`) — example servers (filesystem, Postgres read-only, GitHub, Playwright) with [per-tool setup notes](docs/mcp-setup.md).
@@ -225,13 +225,14 @@ Nothing here is decoration. Each piece exists for a specific failure mode of AI-
 | **Principle 9** (tests are load-bearing) | The agent editing tests or task lists to make work *appear* done — a failure mode Anthropic observed directly in long-running agents |
 | **Security checks** (`scripts/check-security.sh`, gitleaks in `scripts/check-clean-state.sh`) | Vulnerable code or dependencies entering silently — semgrep/osv-scanner findings block the edit and feed back while context is fresh |
 | **Principle 10** (security findings are load-bearing) | The agent silencing scanners (`# nosemgrep`, ignore files) instead of fixing the vulnerability — suppressions only in dedicated, justified commits |
+| **Principle 11** (KISS) | Plausible over-engineering — code is cheap to generate and expensive to read, so an abstraction with one caller or an unrequested config flag is reviewed like a bug |
 | **Security considerations** in specs (`specs/template/spec.md`) | Logic-level flaws no scanner sees (IDOR, authz bypass, tenant leakage) — abuse cases become negative acceptance criteria, tested and verified |
 | **`security-reviewer`** (`agents/reviewers/`) | Scanner blind spots at review time — authorization reasoning, abuse-case coverage, and diffs that quietly disarm the scanners |
 | **CI + pre-commit** (`.github/workflows/security.yml`, `.pre-commit-config.yaml`) | Hooks only guard the agent's session — CI and pre-commit extend the same scanners to every commit from anyone |
 
 </details>
 
-The adoption of these practices is recorded in [ADR 0001](docs/adr/0001-adopt-harness-engineering-practices.md), [ADR 0002](docs/adr/0002-adopt-security-harness.md) (security harness), and [ADR 0003](docs/adr/0003-agent-agnostic-layout.md) (agent-agnostic layout).
+The adoption of these practices is recorded in [ADR 0001](docs/adr/0001-adopt-harness-engineering-practices.md), [ADR 0002](docs/adr/0002-adopt-security-harness.md) (security harness), [ADR 0003](docs/adr/0003-agent-agnostic-layout.md) (agent-agnostic layout), and [ADR 0004](docs/adr/0004-kiss-principle.md) (KISS as Principle 11).
 
 ### Portable by design
 
@@ -242,7 +243,7 @@ The template separates **portable policy** from **per-tool binding**, so switchi
 
 ## Philosophy
 
-Vibe coding works best with guardrails. The template enforces ten non-negotiables (full text and rationale in [`specs/constitution.md`](specs/constitution.md)):
+Vibe coding works best with guardrails. The template enforces eleven non-negotiables (full text and rationale in [`specs/constitution.md`](specs/constitution.md)):
 
 1. **Spec before code** — describe observable behavior before generating implementation
 2. **Tests track behavior** — every behavioral change needs tests
@@ -254,6 +255,7 @@ Vibe coding works best with guardrails. The template enforces ten non-negotiable
 8. **Fail loudly, not silently** — no swallowed errors
 9. **Tests and task lists are load-bearing** — never edited to make work *appear* done
 10. **Security findings are load-bearing** — scanners are fixed against, never silenced
+11. **KISS** — the simplest shape that satisfies the spec; complexity needs a written reason
 
 You can relax any of these as your team matures — but only via an explicit ADR.
 
@@ -263,7 +265,7 @@ You can relax any of these as your team matures — but only via an explicit ADR
 The principles are reinforced by Karpathy-inspired operating standards that keep agent work deliberate and minimal:
 
 - **Think before coding** — surface assumptions, ask clarifying questions, and avoid silent interpretation.
-- **Simplicity first** — choose the minimum code that solves the problem; avoid speculative abstractions.
+- **Simplicity first** — choose the minimum code that solves the problem; avoid speculative abstractions. Promoted to Principle 11 (KISS), so it bends only through an ADR.
 - **Surgical changes** — change only what is required and leave unrelated code untouched.
 - **Goal-driven execution** — define verifiable success criteria and test the result explicitly.
 

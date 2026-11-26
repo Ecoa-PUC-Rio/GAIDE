@@ -51,6 +51,7 @@ Before any code change, the agent MUST:
 3. **If no spec exists**, propose writing one using the `spec-writer` skill before coding.
 4. **Follow the SDD flow**: spec → plan → tasks → implementation.
 5. **Never edit tests or task lists to make work appear done** (Constitution Principle 9).
+6. **Take the simplest shape that satisfies the spec** (Constitution Principle 11) — no abstraction with a single caller, no option nobody asked for, no dependency replacing a few lines of code, unless the reason is written in the plan or an ADR.
 
 ## Enforcement checks
 
@@ -96,7 +97,7 @@ MCP servers are declared in `.mcp.json` (canonical reference). See `docs/mcp-set
 These principles complement the constitution and keep agent behavior aligned with lean, deliberate coding:
 
 - **Think before coding:** state assumptions explicitly, surface uncertainty early, and ask clarifying questions instead of silently guessing.
-- **Simplicity first:** prefer the smallest code that solves the actual problem; avoid speculative abstractions, unnecessary config, or "clever" designs.
+- **Simplicity first (KISS, Constitution Principle 11):** prefer the smallest code that solves the actual problem; avoid speculative abstractions, unnecessary config, or "clever" designs. This one is non-negotiable — the others in this list are standards, this one is a principle and bends only through an ADR.
 - **Surgical changes:** touch only what is required for the task; do not refactor or "clean up" unrelated code, and preserve the existing style unless the task requires a justified change.
 - **Goal-driven execution:** define success criteria upfront, verify with tests or checks, and loop until the result is demonstrably correct rather than merely plausible.
 

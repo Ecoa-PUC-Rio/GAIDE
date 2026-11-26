@@ -31,7 +31,7 @@ For each changed file, check:
 
 **(F) Tests** — behavioral change without test changes → blocker. Tests cover the spec's acceptance criteria.
 
-**(G) Maintainability** — clear names, single-responsibility functions, comments only where the *why* is non-obvious.
+**(G) Simplicity and maintainability** — clear names, single-responsibility functions, comments only where the *why* is non-obvious. Avoidable complexity is a finding (Principle 11): abstractions with a single caller, options nobody asked for, layers that only forward calls, generality the spec does not ask for, a dependency replacing a few lines of code. Name the simpler shape you would have expected; if the complexity is justified, the justification belongs in the plan or an ADR, not in the review thread.
 
 ## Report format
 
