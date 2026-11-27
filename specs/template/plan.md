@@ -20,9 +20,9 @@ For each relevant decision, indicate whether it requires an ADR:
 Proposed order (each item becomes an atomic task in `tasks.md`):
 
 1. Generate tests from the spec (red)
-2. Implement component A
-3. Implement component B
-4. Wire A and B together
+2. Refactoring that makes the change easy (if any)
+3. Slice 1 — the thinnest end-to-end path through every layer it needs
+4. Slice 2 — the next behavior, again end to end
 5. Verify tests pass (green)
 6. Documentation and ADRs
 
