@@ -24,12 +24,11 @@ For each relevant decision, indicate whether it requires an ADR:
 
 1. **Red tests** — generate tests via `test-generator` skill from the spec
 2. **ADR 0003** — record the streaming decision via `adr-writer` skill
-3. **Exporter (sync)** — core CSV implementation
-4. **HTTP handler** — endpoint delivering CSV inline for volumes < 10,000
-5. **Async job** — queue + worker + signed-link persistence
-6. **Email** — send signed link expiring in 24h
-7. **UI** — export panel
-8. **Verification** — all tests green; review via `code-reviewer` skill
+3. **Sync download, end to end** — CSV exporter + HTTP endpoint delivering CSV inline for volumes < 10,000
+4. **Async job** — queue + worker + signed-link persistence
+5. **Email** — send signed link expiring in 24h
+6. **UI** — export panel
+7. **Verification** — all tests green; review via `code-reviewer` skill
 
 ## Testing strategy
 

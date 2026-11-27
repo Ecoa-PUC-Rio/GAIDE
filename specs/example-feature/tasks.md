@@ -1,6 +1,8 @@
 # Tasks: Export history as CSV
 
 > **Prerequisite:** `plan.md` approved ✓
+>
+> **Parallel execution:** Tasks 1 and 2 are ready from the start and touch different files. Once Task 3 is `done`, Task 6 (UI) can run alongside Tasks 4 → 5 (async path) — their `Files` don't overlap.
 
 ---
 
@@ -28,44 +30,34 @@
 
 ---
 
-## Task 3 — Implement synchronous `csv_exporter`
+## Task 3 — Synchronous CSV download, end to end
 **Status:** pending
-**Files:** `src/exports/csv_exporter.py` (new)
-**Description:** Module that takes an iterable of activities and returns a CSV compliant with RFC 4180.
+**Files:** `src/exports/csv_exporter.py` (new), `src/exports/handlers.py` (new)
+**Description:** `GET /api/exports/history?from=...&to=...` returns the authenticated user's history as an RFC 4180 CSV, inline, for volumes < 10,000 rows. Demonstrable on its own: an authenticated `curl` downloads a file that opens in a spreadsheet.
 **Done when:**
 - [ ] Exporter unit tests pass
 - [ ] Correct quoting of fields containing commas, quotes, line breaks
-**Estimate:** 45 min
+- [ ] Authentication required (401 without session)
+- [ ] Filters only the authenticated user's data
+- [ ] Headers `Content-Type: text/csv` and `Content-Disposition: attachment`
+**Estimate:** 60 min
 **Depends on:** Task 1, Task 2
 
 ---
 
-## Task 4 — Synchronous HTTP endpoint
+## Task 4 — Async queue for large volumes
 **Status:** pending
-**Files:** `src/exports/handlers.py` (new)
-**Description:** `GET /api/exports/history?from=...&to=...` returns CSV inline for volumes < 10,000 rows.
-**Done when:**
-- [ ] Authentication required (401 without session)
-- [ ] Filters only the authenticated user's data
-- [ ] Headers `Content-Type: text/csv` and `Content-Disposition: attachment`
-**Estimate:** 45 min
-**Depends on:** Task 3
-
----
-
-## Task 5 — Async queue for large volumes
-**Status:** pending
-**Files:** `src/exports/async_job.py` (new)
+**Files:** `src/exports/async_job.py` (new), `src/exports/handlers.py`
 **Description:** Queue generation when volume > 10,000; persist signed link.
 **Done when:**
 - [ ] Job processed by an isolated worker
 - [ ] Signed link with 24h TTL, single-use
 **Estimate:** 60 min
-**Depends on:** Task 4
+**Depends on:** Task 3
 
 ---
 
-## Task 6 — Email with download link
+## Task 5 — Email with download link
 **Status:** pending
 **Files:** `src/exports/email.py` (new)
 **Description:** Send an email when async generation completes via MCP `_email-service`.
@@ -73,11 +65,11 @@
 - [ ] Email contains a working signed link
 - [ ] Email template approved by the PO
 **Estimate:** 30 min
-**Depends on:** Task 5
+**Depends on:** Task 4
 
 ---
 
-## Task 7 — Export UI
+## Task 6 — Export UI
 **Status:** pending
 **Files:** `src/ui/settings/ExportPanel.tsx` (new)
 **Description:** Component in "Settings > Export data" with a date picker and a submit button.
@@ -85,11 +77,11 @@
 - [ ] Keyboard accessible
 - [ ] Loading / success / error states visible
 **Estimate:** 45 min
-**Depends on:** Task 4
+**Depends on:** Task 3
 
 ---
 
-## Task 8 — Review via the code-reviewer skill
+## Task 7 — Review via the code-reviewer skill
 **Status:** pending
 **Files:** —
 **Description:** Run the `code-reviewer` skill over the full diff. Address any blockers.
@@ -97,11 +89,11 @@
 - [ ] No remaining blockers
 - [ ] Suggestions assessed (accepted or justified)
 **Estimate:** 30 min
-**Depends on:** Tasks 3–7
+**Depends on:** Tasks 3–6
 
 ---
 
-## Task 9 — Final verification and merge
+## Task 8 — Final verification and merge
 **Status:** pending
 **Files:** —
 **Description:** All tests green; human review; merge.
@@ -109,7 +101,7 @@
 - [ ] 9 spec criteria verified
 - [ ] DoD complete
 **Estimate:** 20 min
-**Depends on:** Task 8
+**Depends on:** Task 7
 
 ---
 
@@ -117,12 +109,12 @@
 
 | Spec criterion | Task(s) | Status |
 | --- | --- | --- |
-| C1: reach screen | Task 7 | pending |
-| C2: select range | Task 7 | pending |
+| C1: reach screen | Task 6 | pending |
+| C2: select range | Task 6 | pending |
 | C3: CSV header | Tasks 1, 3 | pending |
 | C4: ISO 8601 dates | Tasks 1, 3 | pending |
-| C5: file name | Tasks 1, 4 | pending |
-| C6: 401 without auth | Tasks 1, 4 | pending |
-| C7: no cross-tenant leakage | Tasks 1, 4 | pending |
-| C8: async > 10,000 | Tasks 1, 5, 6 | pending |
-| C9: 24h link expiry | Tasks 1, 5 | pending |
+| C5: file name | Tasks 1, 3 | pending |
+| C6: 401 without auth | Tasks 1, 3 | pending |
+| C7: no cross-tenant leakage | Tasks 1, 3 | pending |
+| C8: async > 10,000 | Tasks 1, 4, 5 | pending |
+| C9: 24h link expiry | Tasks 1, 4 | pending |

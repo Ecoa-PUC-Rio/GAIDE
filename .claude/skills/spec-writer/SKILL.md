@@ -67,9 +67,14 @@ Once the spec is user-approved, create `specs/<slug>/plan.md` with:
 - Identified risks
 
 ### Step 3 — Tasks
-Once the plan is approved, create `specs/<slug>/tasks.md` decomposing into atomic tasks (~30 min each):
+Once the plan is approved, create `specs/<slug>/tasks.md` from `specs/template/tasks.md`, decomposing into atomic tasks (~30 min each):
 - [ ] Task 1 — concrete description, affected files, completion criterion
 - [ ] Task 2 — ...
+
+Shape the tasks so they can be worked in parallel:
+- **Slice vertically.** Each task is a thin, complete path through the layers it needs (data, logic, interface, tests) that can be demonstrated on its own — not one layer at a time, integrated at the end. Refactoring that makes the change easy goes first, as its own task.
+- **Declare only real dependencies.** `Depends on` lists the tasks that truly must finish first; a false edge serializes work that could run side by side.
+- **List every file a task touches.** Tasks whose dependencies are `done` and whose `Files` don't overlap can each go to a separate subagent. Two tasks that must edit the same file are either one task or sequential.
 
 ### Step 4 — Human validation
 Pause and ask for explicit human approval before starting implementation.
@@ -79,7 +84,7 @@ Pause and ask for explicit human approval before starting implementation.
 - **Don't code in this skill.** This skill produces documents, not code.
 - **Don't invent requirements.** If something is ambiguous, ask the user.
 - **Respect the constitution.** If the feature violates a principle, flag it before proceeding.
-- **Atomicity.** Small, independent tasks make assisted implementation easier.
+- **Atomicity.** Small, independent, vertically sliced tasks make assisted — and parallel — implementation easier.
 
 ## Expected output
 Three files in `specs/<feature-slug>/`:

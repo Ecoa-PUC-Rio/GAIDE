@@ -4,6 +4,10 @@
 >
 > Decomposition into **atomic** tasks (~30 min each). Each task has a verifiable completion criterion.
 >
+> **Slicing:** each task is a thin, complete path through the layers it needs (data, logic, interface, tests) that can be demonstrated on its own — not one layer at a time. Refactoring that makes the change easy goes first, as its own task.
+>
+> **Parallel execution:** a task is *ready* when every task in its `Depends on` is `done`. Ready tasks whose `Files` don't overlap may run in parallel, one subagent each. Only the coordinating session edits this file — subagents report back and the coordinator records the status, so there is never more than one writer.
+>
 > **Status lifecycle:** `pending → in-progress → done → verified`.
 > `done` = implemented and its own tests pass. `verified` = checked against the spec's acceptance criteria by someone (or some agent) other than whoever implemented it.
 > Status only moves forward when the work actually happened — re-marking tasks to make work *appear* done violates Constitution Principle 9.
